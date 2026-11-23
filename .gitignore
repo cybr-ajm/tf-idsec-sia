@@ -1,0 +1,24 @@
+# Terraform working files
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+tfplan
+*.tfplan
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Environment-specific values (copy terraform.tfvars.example to terraform.tfvars)
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Certificates and keys
+*.pem
+*.key
+*.pfx
+*.p12
+certs/

@@ -1,0 +1,69 @@
+# Copy this file to terraform.tfvars and fill in your own values.
+# terraform.tfvars is git-ignored.
+
+# --- CyberArk CCP ---
+ccp_base_url = "https://ccp.example.com"
+ccp_app_id   = "Terraform"
+ccp_safe     = "TerraformAccounts"
+ccp_folder   = "Root"
+ccp_object   = "svc_terraform"
+
+# Optional extra filters on the CCP query
+# ccp_account_username = "svc_terraform@example.com"
+# ccp_account_address  = "my-tenant.cyberark.cloud"
+
+# Client certificate, if the CCP application uses certificate authentication
+# ccp_client_cert_path = "./certs/client.pem"
+# ccp_client_key_path  = "./certs/client.key"
+
+# CA bundle, if the CCP server certificate is not publicly trusted
+# ccp_ca_cert_path = "./certs/ca.pem"
+
+# --- Idira ---
+idsec_auth_method = "identity_service_user"
+# idsec_subdomain = "my-tenant"
+
+# --- SIA: one policy per Windows server ---
+# The AD group for each server is "<sia_group_prefix><machine>", nested in that server's local Administrators.
+# server01 -> AD group "SRV-Admins-server01"
+sia_group_prefix = "SRV-Admins-"
+sia_domain       = "corp.example.com"
+
+# Who can use the policies. USER and GROUP principals need the directory ID and name.
+# Cloud Directory: source_directory_name = "CDS", source_directory_id = "09B9A9B0-6CE8-465F-AB03-65766D33B05E" (same on every tenant).
+sia_principals = [
+  {
+    id                    = "00000000-0000-0000-0000-000000000000" # Idira user ID
+    name                  = "jdoe@example.com"
+    type                  = "USER"
+    source_directory_id   = "09B9A9B0-6CE8-465F-AB03-65766D33B05E"
+    source_directory_name = "CDS"
+  },
+]
+
+# Keyed by machine name; the FQDN target is <machine>.<sia_domain> (server01.corp.example.com).
+# Every per-server field is optional; see sia_servers in sia_variables.tf.
+sia_servers = {
+  "server01" = {}
+  "server02" = {}
+  "server03" = {
+    group_name = "Custom-Admin-Group"
+    status     = "Suspended"
+  }
+}
+
+# Recurring policy, no extra restrictions: any day/time, no end date, no approval,
+# session length, idle timeout and recording all taken from the SIA global settings.
+sia_policy_type                   = "Recurring"
+sia_access_window                 = { days_of_the_week = [0, 1, 2, 3, 4, 5, 6], from_hour = "00:00", to_hour = "23:59" }
+sia_time_frame                    = null
+sia_access_approval               = { required = false }
+sia_override_max_session_duration = false
+sia_override_idle_time            = false
+sia_override_recording            = false
+
+# Other optional settings (defaults in sia_variables.tf)
+# sia_policy_name_format        = "Server Admin - %s"
+# sia_policy_tags               = ["windows", "server-admin"]
+# sia_time_zone                 = "America/New_York"
+# sia_delegation_classification = "Restricted"
